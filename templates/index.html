@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Car Price Prediction</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+        input {
+            margin-bottom: 10px;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            padding: 10px;
+            font-size: 16px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .result {
+            margin-top: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Car Price Prediction</h1>
+        <form id="prediction-form">
+            <input type="number" step="0.1" name="years" placeholder="Years" required>
+            <input type="number" step="0.1" name="km" placeholder="Kilometers" required>
+            <input type="number" step="0.1" name="rating" placeholder="Rating" required>
+            <input type="number" step="0.1" name="condition" placeholder="Condition" required>
+            <input type="number" step="0.1" name="economy" placeholder="Economy" required>
+            <input type="number" step="0.1" name="top_speed" placeholder="Top Speed" required>
+            <input type="number" step="0.1" name="hp" placeholder="Horsepower" required>
+            <input type="number" step="0.1" name="torque" placeholder="Torque" required>
+            <button type="submit">Predict Price</button>
+        </form>
+        <div class="result" id="result"></div>
+    </div>
+    <script>
+        document.getElementById('prediction-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    let formData = new FormData(this);
+    let data = {};
+    formData.forEach((value, key) => data[key] = parseFloat(value));
+
+    fetch('/predict', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(result => {
+        console.log("Result from server:", result);  // Debugging line
+
+        if (result.predicted_value !== undefined && result.margin_of_error !== undefined) {
+            document.getElementById('result').innerHTML = `Predicted Value: $${result.predicted_value} ± $${result.margin_of_error}`;
+        } else {
+            document.getElementById('result').innerHTML = `Error: ${result.error || 'Unexpected response format'}`;
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        document.getElementById('result').innerHTML = `Error: ${error.message}`;
+    });
+});
+
+    </script>
+</body>
+</html>
